@@ -13,6 +13,9 @@ set -e
 # set TERM if not present, ngrok will fail with missing TERM
 : ${TERM:=xterm}
 
+# set subdomain if present
+: ${NGROK_SUBDOMAIN:=$CIRCLE_SHA1}
+
 # obscure sensitive tokens from output
 PRINT_NGROK_TOKEN="$(echo $NGROK_TOKEN | head -c4)****************"
 PRINT_GI_API_KEY="$(echo $GI_API_KEY | head -c4)****************"
@@ -58,7 +61,8 @@ fi
 
 # Intialize ngrok and open tunnel to our application
 ngrok authtoken $NGROK_TOKEN
-ngrok http $APP_PORT &
+ngrok http -subdomain=$NGROK_SUBDOMAIN $APP_PORT &
+#ngrok -authtoken$NGROK_TOKEN -subdomain=$NGROK_SUBDOMAIN http $APP_PORT &
 NGROK_PID=$!
 
 # give ngrok a second to register URLs
